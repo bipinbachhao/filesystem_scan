@@ -25,22 +25,23 @@ import shutil
 import sys
 from datetime import datetime
 
+time_now = datetime.now()
+timestamp = '.%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
+start_directory = '/home/bipin'
+scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
 
 def main():
     print 'Hello this is the first line from the main function'
-    file_list = get_filename("/home/bipin")
+    file_list = get_files("/home/bipin")
     print "File List is: %s" % file_list
 
 
-def get_filename(directory):
-    user_directory = []
+def get_files(directory):
     file_paths = []
     for root, dirs, files in os.walk(directory):
-        for subdir in dirs:
-            for root, dirs, files in os.walk(subdir):
-                for filename in files:
-                    file_path = os.path.join(root, filename)
-                    file_paths.append(file_path)
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            file_paths.append(file_path)
     return file_paths
 
 
