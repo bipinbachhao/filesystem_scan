@@ -31,14 +31,13 @@ from grp import getgrgid
 
 time_now = datetime.now()
 timestamp = '.%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
-start_directory = '/home/bipin/Workspace/'
+start_directory = '/home/bipin'
 #scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
 scan_report = os.path.join(os.getcwd(), 'scan_report.csv')
 
 def main():
     print 'Hello this is the first line from the main function'
     file_list = get_files(start_directory)
-    get_files_test(start_directory)
     print "File List is: %s" % file_list
 
 
@@ -53,9 +52,10 @@ def get_files(directory):
             csv_writer.writerow(directory_info)
             for filename in files:
                 file_path = os.path.join(root, filename)
-                file_info = ['', '', file_path, getpwuid(os.stat(file_path).st_uid).pw_name, getgrgid(os.stat(file_path).st_gid).gr_name, os.stat(file_path).st_size, datetime.fromtimestamp(os.stat(file_path).st_ctime), datetime.fromtimestamp(os.stat(file_path).st_atime), datetime.fromtimestamp(os.stat(file_path).st_mtime)]
-                csv_writer.writerow(file_info)
-                file_paths.append(file_path)
+                if os.path.isfile(file_path):
+                    file_info = ['', '', file_path, getpwuid(os.stat(file_path).st_uid).pw_name, getgrgid(os.stat(file_path).st_gid).gr_name, os.stat(file_path).st_size, datetime.fromtimestamp(os.stat(file_path).st_ctime), datetime.fromtimestamp(os.stat(file_path).st_atime), datetime.fromtimestamp(os.stat(file_path).st_mtime)]
+                    csv_writer.writerow(file_info)
+                    file_paths.append(file_path)
         csvfile.close()
     return file_paths
 
