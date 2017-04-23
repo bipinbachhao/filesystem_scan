@@ -31,7 +31,7 @@ from grp import getgrgid
 
 time_now = datetime.now()
 timestamp = '.%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
-start_directory = '/home/bipin'
+start_directory = '/home/bipin/Workspace'
 #scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
 scan_report = os.path.join(os.getcwd(), 'scan_report.csv')
 
