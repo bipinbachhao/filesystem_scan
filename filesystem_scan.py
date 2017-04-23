@@ -33,12 +33,35 @@ def main():
 
 
 def get_filename(directory):
+    user_directory = []
     file_paths = []
     for root, dirs, files in os.walk(directory):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-            file_paths.append(file_path)
+        for subdir in dirs:
+            for root, dirs, files in os.walk(subdir):
+                for filename in files:
+                    file_path = os.path.join(root, filename)
+                    file_paths.append(file_path)
     return file_paths
+
+
+def get_files_test(directory):
+    for root, dirs, files in os.walk('.'):
+        print root, "consumes",
+        print sum(os.path.getsize(os.path.join(root, name)) for name in files),
+        print "bytes in", len(files), "non-directory files"
+        for file in files:
+            fileloc = root + "/" + file
+            FILE = os.open(fileloc, os.O_RDONLY)
+            junk = os.fstat(FILE)
+            size = junk[6]
+            atime = junk[7]
+            mtime = junk[8]
+            ctime = junk[9]
+            uid = junk[4]
+            gid = junk[5]
+            print "   File: %s size: %s atime: %s mtime: %s ctime: %s" % (file, size, atime, mtime, ctime)
+            os.close(FILE)
+
 
 
 if __name__ == '__main__':
