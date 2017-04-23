@@ -23,30 +23,45 @@ limitations under the License.
 import os
 import shutil
 import sys
+import csv
 from datetime import datetime
+from pwd import getpwuid
+from grp import getgrgid
+
 
 time_now = datetime.now()
 timestamp = '.%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
-start_directory = '/home/bipin'
-scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
+start_directory = '/home/bipin/Workspace/'
+#scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
+scan_report = os.path.join(os.getcwd(), 'scan_report.csv')
 
 def main():
     print 'Hello this is the first line from the main function'
-    file_list = get_files("/home/bipin")
+    file_list = get_files(start_directory)
+    get_files_test(start_directory)
     print "File List is: %s" % file_list
 
 
 def get_files(directory):
     file_paths = []
-    for root, dirs, files in os.walk(directory):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-            file_paths.append(file_path)
+    with open(scan_report, 'wb') as csvfile:
+        field_names = ['Directory', 'No of Files', 'File name', 'UID', 'GID', 'File Size', 'Creation Time', 'Access Time', 'Modification Time']
+        csv_writer = csv.writer(csvfile, delimiter=',', lineterminator='\n')
+        csv_writer.writerow(field_names)
+        for root, dirs, files in os.walk(directory):
+            directory_info = [root, len(files), '', getpwuid(os.stat(root).st_uid).pw_name, getgrgid(os.stat(root).st_gid).gr_name, os.stat(root).st_size, datetime.fromtimestamp(os.stat(root).st_ctime), datetime.fromtimestamp(os.stat(root).st_atime), datetime.fromtimestamp(os.stat(root).st_mtime)]
+            csv_writer.writerow(directory_info)
+            for filename in files:
+                file_path = os.path.join(root, filename)
+                file_info = ['', '', file_path, getpwuid(os.stat(file_path).st_uid).pw_name, getgrgid(os.stat(file_path).st_gid).gr_name, os.stat(file_path).st_size, datetime.fromtimestamp(os.stat(file_path).st_ctime), datetime.fromtimestamp(os.stat(file_path).st_atime), datetime.fromtimestamp(os.stat(file_path).st_mtime)]
+                csv_writer.writerow(file_info)
+                file_paths.append(file_path)
+        csvfile.close()
     return file_paths
 
 
 def get_files_test(directory):
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk(directory):
         print root, "consumes",
         print sum(os.path.getsize(os.path.join(root, name)) for name in files),
         print "bytes in", len(files), "non-directory files"
