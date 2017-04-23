@@ -24,3 +24,22 @@ import os
 import shutil
 import sys
 from datetime import datetime
+
+
+def main():
+    print 'Hello this is the first line from the main function'
+    file_list = get_filename("/home/bipin")
+    print "File List is: %s" % file_list
+
+
+def get_filename(directory):
+    file_paths = []
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            file_paths.append(file_path)
+    return file_paths
+
+
+if __name__ == '__main__':
+    main()
