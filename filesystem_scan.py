@@ -21,28 +21,42 @@ limitations under the License.
 '''
 
 import os
-import shutil
-import sys
 import csv
+import sys
 from datetime import datetime
 from pwd import getpwuid
 from grp import getgrgid
 
 
 time_now = datetime.now()
-timestamp = '.%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
+timestamp = '%s' % (time_now.strftime('%Y_%m_%d_%H:%M:%S'),)
 start_directory = '/home/bipin/Workspace'
-#scan_report = os.path.join(os.getcwd(), 'scan_report_%s.csv' % timestamp)
-scan_report = os.path.join(os.getcwd(), 'scan_report.csv')
+scan_report_dir = os.path.join(os.getcwd(), 'temp')
 
 def main():
-    print 'Hello this is the first line from the main function'
-    file_list = get_files(start_directory)
-    print "File List is: %s" % file_list
+    if os.path.exists(start_directory):
+        print 'Starting the Filesystem Scanning Configured Starting directory is : %s' % start_directory
+        print "It will take a long time to complete large filesystems, seat tight"
+        user_dir(start_directory)
+        print "Scanning completed!!!!"
+    else:
+        print "Parent Directory to Start scan from, does not Exists. Exiting!!!"
+        sys.exit()
 
 
-def get_files(directory):
-    file_paths = []
+def user_dir(parent_dir):
+    child_dirs = os.listdir(parent_dir)
+    for child_dir in child_dirs:
+        if os.path.exists(scan_report_dir):
+            scan_report = os.path.join(scan_report_dir, '%s_scan_report_%s.csv' % (child_dir, timestamp))
+            child_dir_path = os.path.join(parent_dir, child_dir)
+            get_files(child_dir_path, scan_report)
+        else:
+            print "Scan Report Directory does not exists so Exiting!!"
+            sys.exit()
+
+
+def get_files(directory, scan_report):
     with open(scan_report, 'wb') as csvfile:
         field_names = ['Directory', 'No of Files', 'File name', 'UID', 'GID', 'File Size', 'Creation Time', 'Access Time', 'Modification Time']
         csv_writer = csv.writer(csvfile, delimiter=',', lineterminator='\n')
@@ -55,9 +69,7 @@ def get_files(directory):
                 if os.path.isfile(file_path):
                     file_info = ['', '', file_path, getpwuid(os.stat(file_path).st_uid).pw_name, getgrgid(os.stat(file_path).st_gid).gr_name, os.stat(file_path).st_size, datetime.fromtimestamp(os.stat(file_path).st_ctime), datetime.fromtimestamp(os.stat(file_path).st_atime), datetime.fromtimestamp(os.stat(file_path).st_mtime)]
                     csv_writer.writerow(file_info)
-                    file_paths.append(file_path)
         csvfile.close()
-    return file_paths
 
 
 if __name__ == '__main__':
